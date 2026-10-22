@@ -1,0 +1,30 @@
+name: ECC open-source source audit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ecc-source-structure:
+    name: Verify ECC pinned source without execution
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Checkout the isolated lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: lab
+          persist-credentials: false
+      - name: Checkout pinned public ECC upstream (read-only)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: affaan-m/ECC
+          ref: 90606c8315ee09cafc303515c5f33024db6b9882
+          path: upstream-ecc
+          persist-credentials: false
+      - name: Validate SHA, license, Codex manifest, referenced assets
+        run: python3 lab/scripts/check_upstream_ecc.py upstream-ecc
